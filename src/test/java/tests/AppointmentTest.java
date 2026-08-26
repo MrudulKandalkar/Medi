@@ -23,7 +23,7 @@ public class AppointmentTest extends BaseTest {
         // WAIT UNTIL 12:00 AM IST
         // ======================================================
 
-        TimeWait.waitUntilMidnightIST();
+        // TimeWait.waitUntilMidnightIST();
 
         // ======================================================
         // GET TODAY'S DATE AFTER MIDNIGHT
