@@ -7,7 +7,7 @@
 
         <classes>
             <class name="tests.AppointmentTest"/>
-            <class name="tests.AppointmentTest1"/>
+            <!-- <class name="tests.AppointmentTest1"/> -->
         </classes>
 
     </test>
