@@ -20,11 +20,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.SkipException;
 
 import net.sourceforge.tess4j.Tesseract;
 
-public class AppointmentPage {
+public class AppointmentPage1 {
 
     // ==========================================================
     // DRIVER / WAIT
@@ -39,13 +38,6 @@ public class AppointmentPage {
 
     private static final Duration WAIT_TIME =
             Duration.ofSeconds(20);
-
-    // ==========================================================
-    // DATE FORMAT
-    // ==========================================================
-
-    private static final DateTimeFormatter DATE_FORMAT =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // ==========================================================
     // EMPLOYEE LOCATORS
@@ -78,8 +70,11 @@ public class AppointmentPage {
             By.id("btnSave");
 
     // ==========================================================
-    // DATE / CALENDAR LOCATORS
+    // DATE
     // ==========================================================
+
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final By calendarButton =
             By.cssSelector(
@@ -88,9 +83,6 @@ public class AppointmentPage {
 
     private final By dateField =
             By.id("DateFrom");
-
-    private final By datepickerContainer =
-            By.id("ui-datepicker-div");
 
     private final By datepickerMonth =
             By.cssSelector(
@@ -108,7 +100,7 @@ public class AppointmentPage {
             );
 
     // ==========================================================
-    // APPOINTMENT LOCATORS
+    // ACTIVITY
     // ==========================================================
 
     private final By activityDropdown =
@@ -117,33 +109,11 @@ public class AppointmentPage {
     private final By showAppointmentButton =
             By.id("btnshow");
 
-    private final By appointmentResults =
-            By.cssSelector(
-                    "#result a.shortcut"
-            );
-
-    // ==========================================================
-    // APPOINTMENT CONFIGURATION
-    // ==========================================================
-
-    private static final String ACTIVITY =
-            "Badminton Court 1";
-
-    private static final String TIME_SLOT =
-            "05:00 PM To 06:00 PM";
-
     // ==========================================================
     // CONSTRUCTOR
     // ==========================================================
 
-    public AppointmentPage(WebDriver driver) {
-
-        if (driver == null) {
-
-            throw new IllegalArgumentException(
-                    "WebDriver cannot be null."
-            );
-        }
+    public AppointmentPage1(WebDriver driver) {
 
         this.driver = driver;
 
@@ -180,13 +150,12 @@ public class AppointmentPage {
 
     public void bookAppointment() {
 
-        System.out.println();
         System.out.println(
                 "========================================"
         );
 
         System.out.println(
-                "STARTING APPOINTMENT BOOKING"
+                "STARTING APPOINTMENT PAGE 1"
         );
 
         System.out.println(
@@ -194,7 +163,7 @@ public class AppointmentPage {
         );
 
         // ------------------------------------------------------
-        // GET TODAY IN IST
+        // TODAY
         // ------------------------------------------------------
 
         LocalDate today =
@@ -214,17 +183,21 @@ public class AppointmentPage {
         );
 
         // ------------------------------------------------------
-        // SKIP WEEKENDS
+        // SATURDAY / SUNDAY
         // ------------------------------------------------------
 
         if (todayDay == DayOfWeek.SATURDAY ||
             todayDay == DayOfWeek.SUNDAY) {
 
-            throw new SkipException(
-                    "Today is " +
-                    todayDay +
-                    ". Appointment automation skipped."
+            System.out.println(
+                    "Weekend detected."
             );
+
+            System.out.println(
+                    "Appointment automation skipped."
+            );
+
+            return;
         }
 
         // ------------------------------------------------------
@@ -236,9 +209,7 @@ public class AppointmentPage {
 
         System.out.println(
                 "Appointment date: " +
-                appointmentDate.format(
-                        DATE_FORMAT
-                )
+                appointmentDate.format(DATE_FORMAT)
         );
 
         // ------------------------------------------------------
@@ -250,7 +221,6 @@ public class AppointmentPage {
                         todayDay
                 );
 
-        System.out.println();
         System.out.println(
                 "Employees selected:"
         );
@@ -258,68 +228,64 @@ public class AppointmentPage {
         for (Employee employee : employees) {
 
             System.out.println(
-                    " - " +
                     employee.fullName
             );
         }
 
-        System.out.println();
-
-        // ======================================================
-        // STEP 1 - OPEN CALENDAR
-        // ======================================================
+        // ------------------------------------------------------
+        // OPEN CALENDAR
+        // ------------------------------------------------------
 
         openCalendar();
 
-        // ======================================================
-        // STEP 2 - SELECT DATE
-        // ======================================================
+        // ------------------------------------------------------
+        // SELECT DATE
+        // ------------------------------------------------------
 
         selectDate(
                 appointmentDate
         );
 
-        // ======================================================
-        // STEP 3 - SELECT ACTIVITY
-        // ======================================================
+        // ------------------------------------------------------
+        // SELECT ACTIVITY
+        // ------------------------------------------------------
 
-        selectActivity();
+        selectBadmintonCourt1();
 
-        // ======================================================
-        // STEP 4 - SHOW APPOINTMENTS
-        // ======================================================
+        // ------------------------------------------------------
+        // SHOW APPOINTMENT
+        // ------------------------------------------------------
 
         clickShowAppointment();
 
-        // ======================================================
-        // STEP 5 - SELECT TIME SLOT
-        // ======================================================
+        // ------------------------------------------------------
+        // SELECT TIME SLOT
+        // ------------------------------------------------------
 
         clickTimeSlot(
-                TIME_SLOT
+                "05:00 PM To 06:00 PM"
         );
 
-        // ======================================================
-        // STEP 6 - ADD EMPLOYEES
-        // ======================================================
+        // ------------------------------------------------------
+        // ADD EMPLOYEES
+        // ------------------------------------------------------
 
         addPlayers(
                 employees
         );
 
-        // ======================================================
-        // STEP 7 - CAPTCHA + SAVE
-        // ======================================================
+        // ------------------------------------------------------
+        // CAPTCHA
+        // ------------------------------------------------------
 
         solveCaptchaAndSave();
 
-        System.out.println();
         System.out.println(
                 "========================================"
         );
 
         System.out.println(
-                "APPOINTMENT BOOKING FLOW COMPLETED"
+                "APPOINTMENT PAGE 1 COMPLETED"
         );
 
         System.out.println(
@@ -328,7 +294,7 @@ public class AppointmentPage {
     }
 
     // ==========================================================
-    // GET EMPLOYEES FOR TODAY
+    // EMPLOYEE CONFIGURATION
     // ==========================================================
 
     private List<Employee> getEmployeesForToday(
@@ -402,15 +368,11 @@ public class AppointmentPage {
             );
         }
 
-        // ------------------------------------------------------
-        // SAFETY
-        // ------------------------------------------------------
-
         if (employees.isEmpty()) {
 
-            throw new SkipException(
-                    "No employee configuration found for: " +
-                    day
+            throw new IllegalStateException(
+                    "No employee configuration found for day: "
+                    + day
             );
         }
 
@@ -438,7 +400,7 @@ public class AppointmentPage {
 
         wait.until(
                 ExpectedConditions.visibilityOfElementLocated(
-                        datepickerContainer
+                        By.id("ui-datepicker-div")
                 )
         );
 
@@ -454,11 +416,6 @@ public class AppointmentPage {
     private void selectDate(
             LocalDate targetDate) {
 
-        System.out.println(
-                "Selecting date: " +
-                targetDate.format(DATE_FORMAT)
-        );
-
         int targetDay =
                 targetDate.getDayOfMonth();
 
@@ -468,31 +425,23 @@ public class AppointmentPage {
         int targetYear =
                 targetDate.getYear();
 
-        // ------------------------------------------------------
-        // Navigate to target month
-        // ------------------------------------------------------
-
         navigateToMonth(
                 targetMonth,
                 targetYear
         );
 
-        // ------------------------------------------------------
-        // Find exact date
-        // ------------------------------------------------------
-
         String dateXPath =
-                "//div[@id='ui-datepicker-div']" +
-                "//td[@data-handler='selectDay']" +
-                "[@data-month='" +
-                targetMonth +
-                "']" +
-                "[@data-year='" +
-                targetYear +
-                "']" +
-                "//a[normalize-space(text())='" +
-                targetDay +
-                "']";
+                "//div[@id='ui-datepicker-div']"
+                + "//td[@data-handler='selectDay']"
+                + "[@data-month='"
+                + targetMonth
+                + "']"
+                + "[@data-year='"
+                + targetYear
+                + "']"
+                + "//a[normalize-space(text())='"
+                + targetDay
+                + "']";
 
         By dateLocator =
                 By.xpath(dateXPath);
@@ -504,49 +453,43 @@ public class AppointmentPage {
                         )
                 );
 
+        System.out.println(
+                "Selecting date: " +
+                targetDate.format(DATE_FORMAT)
+        );
+
         date.click();
 
-        // ------------------------------------------------------
-        // Verify date field
-        // ------------------------------------------------------
+        wait.until(
+                driver -> {
 
-        wait.until(driver -> {
+                    String value =
+                            driver.findElement(
+                                    dateField
+                            ).getAttribute("value");
 
-            String value =
-                    driver.findElement(
-                            dateField
-                    ).getAttribute(
-                            "value"
-                    );
-
-            return value != null &&
-                   !value.trim().isEmpty();
-        });
-
-        String selectedDate =
-                driver.findElement(
-                        dateField
-                ).getAttribute(
-                        "value"
-                );
+                    return value != null &&
+                           !value.trim().isEmpty();
+                }
+        );
 
         System.out.println(
                 "Selected date: " +
-                selectedDate
+                driver.findElement(
+                        dateField
+                ).getAttribute("value")
         );
     }
 
     // ==========================================================
-    // NAVIGATE DATEPICKER MONTH
+    // NAVIGATE MONTH
     // ==========================================================
 
     private void navigateToMonth(
             int targetMonth,
             int targetYear) {
 
-        for (int attempt = 0;
-             attempt < 12;
-             attempt++) {
+        for (int i = 0; i < 12; i++) {
 
             String displayedMonth =
                     wait.until(
@@ -569,22 +512,18 @@ public class AppointmentPage {
 
             int currentYear =
                     Integer.parseInt(
-                            displayedYear.trim()
+                            displayedYear
                     );
 
             System.out.println(
-                    "Calendar currently showing: " +
-                    displayedMonth +
-                    " " +
-                    currentYear
+                    "Calendar currently showing: "
+                    + displayedMonth
+                    + " "
+                    + displayedYear
             );
 
             if (currentMonth == targetMonth &&
                 currentYear == targetYear) {
-
-                System.out.println(
-                        "Target month reached."
-                );
 
                 return;
             }
@@ -607,104 +546,91 @@ public class AppointmentPage {
                 )) {
 
                 throw new IllegalStateException(
-                        "Next month button is disabled. " +
-                        "Target date is unavailable."
+                        "Next month button is disabled. "
+                        + "Target date cannot be selected."
                 );
             }
 
-            wait.until(
-                    ExpectedConditions.elementToBeClickable(
-                            nextMonthButton
-                    )
-            ).click();
+            nextButton.click();
 
-            // Small wait for datepicker refresh
             wait.until(
                     ExpectedConditions.visibilityOfElementLocated(
-                            datepickerContainer
+                            By.cssSelector(
+                                    ".ui-datepicker-calendar"
+                            )
                     )
             );
         }
 
         throw new IllegalStateException(
-                "Could not navigate to target month: " +
-                targetMonth +
-                "/" +
-                targetYear
+                "Could not navigate to target month."
         );
     }
 
     // ==========================================================
-    // MONTH NAME TO NUMBER
+    // MONTH NAME -> NUMBER
     // ==========================================================
 
     private int monthNameToNumber(
             String month) {
 
-        if (month == null) {
+        String value =
+                month.trim().toLowerCase();
 
-            throw new IllegalArgumentException(
-                    "Month cannot be null."
-            );
+        switch (value) {
+
+            case "january":
+                return 0;
+
+            case "february":
+                return 1;
+
+            case "march":
+                return 2;
+
+            case "april":
+                return 3;
+
+            case "may":
+                return 4;
+
+            case "june":
+                return 5;
+
+            case "july":
+                return 6;
+
+            case "august":
+                return 7;
+
+            case "september":
+                return 8;
+
+            case "october":
+                return 9;
+
+            case "november":
+                return 10;
+
+            case "december":
+                return 11;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown month: " +
+                        month
+                );
         }
-
-        return switch (
-                month.trim().toLowerCase()
-        ) {
-
-            case "january" ->
-                    0;
-
-            case "february" ->
-                    1;
-
-            case "march" ->
-                    2;
-
-            case "april" ->
-                    3;
-
-            case "may" ->
-                    4;
-
-            case "june" ->
-                    5;
-
-            case "july" ->
-                    6;
-
-            case "august" ->
-                    7;
-
-            case "september" ->
-                    8;
-
-            case "october" ->
-                    9;
-
-            case "november" ->
-                    10;
-
-            case "december" ->
-                    11;
-
-            default ->
-                    throw new IllegalArgumentException(
-                            "Unknown month: " +
-                            month
-                    );
-        };
     }
 
     // ==========================================================
-    // SELECT ACTIVITY
+    // SELECT BADMINTON COURT 1
     // ==========================================================
 
-    private void selectActivity() {
+    private void selectBadmintonCourt1() {
 
         System.out.println(
-                "Selecting activity: " +
-                ACTIVITY
+                "Selecting Badminton Court 1..."
         );
 
         WebElement activity =
@@ -718,35 +644,12 @@ public class AppointmentPage {
                 new Select(activity);
 
         select.selectByVisibleText(
-                ACTIVITY
+                "Badminton Court 1"
         );
-
-        // ------------------------------------------------------
-        // Verify selection
-        // ------------------------------------------------------
-
-        String selected =
-                select.getFirstSelectedOption()
-                      .getText()
-                      .trim();
 
         System.out.println(
-                "Selected activity: " +
-                selected
+                "Selected: Badminton Court 1"
         );
-
-        if (!selected.equalsIgnoreCase(
-                ACTIVITY
-        )) {
-
-            throw new IllegalStateException(
-                    "Activity selection failed. " +
-                    "Expected: " +
-                    ACTIVITY +
-                    " | Actual: " +
-                    selected
-            );
-        }
     }
 
     // ==========================================================
@@ -768,17 +671,11 @@ public class AppointmentPage {
 
         button.click();
 
-        System.out.println(
-                "Show Appointment clicked."
-        );
-
-        // ------------------------------------------------------
-        // Wait for appointment result
-        // ------------------------------------------------------
-
         wait.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        appointmentResults
+                        By.cssSelector(
+                                "#result a.shortcut"
+                        )
                 )
         );
 
@@ -788,18 +685,19 @@ public class AppointmentPage {
     }
 
     // ==========================================================
-    // GET TIME SLOT LOCATOR
+    // TIME SLOT LOCATOR
     // ==========================================================
 
     private By getTimeSlot(
             String timeSlot) {
 
         String xpath =
-                "//div[@id='result']" +
-                "//a[contains(@class,'shortcut')]" +
-                "[.//span[contains(normalize-space(.), '" +
-                timeSlot +
-                "')]]";
+                "//div[@id='result']"
+                + "//a[contains(@class,'shortcut')]"
+                + "[.//span[contains("
+                + "normalize-space(.), '"
+                + timeSlot
+                + "')]]";
 
         return By.xpath(xpath);
     }
@@ -812,35 +710,27 @@ public class AppointmentPage {
             String timeSlot) {
 
         System.out.println(
-                "Searching time slot: " +
+                "Looking for time slot: " +
                 timeSlot
         );
 
         By slotLocator =
-                getTimeSlot(
-                        timeSlot
-                );
+                getTimeSlot(timeSlot);
 
         WebElement slot =
                 wait.until(
-                        ExpectedConditions.presenceOfElementLocated(
+                        ExpectedConditions.visibilityOfElementLocated(
                                 slotLocator
                         )
                 );
 
         String className =
-                slot.getAttribute(
-                        "class"
-                );
+                slot.getAttribute("class");
 
         System.out.println(
                 "Time slot class: " +
                 className
         );
-
-        // ------------------------------------------------------
-        // Check booked status
-        // ------------------------------------------------------
 
         if (className != null &&
             className.toLowerCase().contains(
@@ -848,28 +738,10 @@ public class AppointmentPage {
             )) {
 
             throw new IllegalStateException(
-                    "Time slot is already BOOKED: " +
-                    timeSlot
+                    "Requested time slot is BOOKED: "
+                    + timeSlot
             );
         }
-
-        // ------------------------------------------------------
-        // Check availability
-        // ------------------------------------------------------
-
-        if (className != null &&
-            className.toLowerCase().contains(
-                    "available"
-            )) {
-
-            System.out.println(
-                    "Time slot is AVAILABLE."
-            );
-        }
-
-        // ------------------------------------------------------
-        // Click
-        // ------------------------------------------------------
 
         wait.until(
                 ExpectedConditions.elementToBeClickable(
@@ -878,7 +750,7 @@ public class AppointmentPage {
         ).click();
 
         System.out.println(
-                "Clicked time slot: " +
+                "Selected time slot: " +
                 timeSlot
         );
     }
@@ -890,7 +762,6 @@ public class AppointmentPage {
     private void addPlayers(
             List<Employee> employees) {
 
-        System.out.println();
         System.out.println(
                 "========================================"
         );
@@ -917,30 +788,20 @@ public class AppointmentPage {
     }
 
     // ==========================================================
-    // SEARCH + SELECT + ADD EMPLOYEE
+    // SELECT AND ADD EMPLOYEE
     // ==========================================================
 
     private void selectAndAddEmployee(
             String searchText,
             String employeeFullName) {
 
-        System.out.println();
-        System.out.println(
-                "----------------------------------------"
-        );
-
         System.out.println(
                 "Searching employee: " +
                 searchText
         );
 
-        System.out.println(
-                "Expected name: " +
-                employeeFullName
-        );
-
         // ------------------------------------------------------
-        // Search box
+        // SEARCH BOX
         // ------------------------------------------------------
 
         WebElement searchBox =
@@ -957,7 +818,7 @@ public class AppointmentPage {
         );
 
         // ------------------------------------------------------
-        // Wait for autocomplete
+        // AUTOCOMPLETE
         // ------------------------------------------------------
 
         wait.until(
@@ -967,31 +828,24 @@ public class AppointmentPage {
         );
 
         // ------------------------------------------------------
-        // Exact case-insensitive employee XPath
+        // EXACT EMPLOYEE
         // ------------------------------------------------------
 
-        String lowerName =
-                employeeFullName.toLowerCase();
-
         String employeeXPath =
-                "//ul[contains(@class,'ui-autocomplete')]" +
-                "//li[contains(@class,'ui-menu-item')]" +
-                "//a[" +
-                "normalize-space(" +
-                "translate(" +
-                "text()," +
-                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
-                "'abcdefghijklmnopqrstuvwxyz'" +
-                ")" +
-                ")='" +
-                lowerName +
-                "'" +
-                "]";
+                "//ul[contains(@class,'ui-autocomplete')]"
+                + "//li[contains(@class,'ui-menu-item')]"
+                + "//a["
+                + "normalize-space("
+                + "translate(text(),"
+                + "'ABCDEFGHIJKLMNOPQRSTUVWXYZ',"
+                + "'abcdefghijklmnopqrstuvwxyz')"
+                + ")='"
+                + employeeFullName.toLowerCase()
+                + "'"
+                + "]";
 
         By employeeLocator =
-                By.xpath(
-                        employeeXPath
-                );
+                By.xpath(employeeXPath);
 
         WebElement employee =
                 wait.until(
@@ -1001,52 +855,33 @@ public class AppointmentPage {
                 );
 
         System.out.println(
-                "Employee found: " +
+                "Found employee: " +
                 employeeFullName
         );
 
-        // ------------------------------------------------------
-        // Click employee
-        // ------------------------------------------------------
-
         employee.click();
 
-        System.out.println(
-                "Employee clicked."
+        // ------------------------------------------------------
+        // WAIT FOR AUTOCOMPLETE TO DISAPPEAR
+        // ------------------------------------------------------
+
+        wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(
+                        autocompleteResults
+                )
         );
 
         // ------------------------------------------------------
-        // Wait for autocomplete to disappear
-        // ------------------------------------------------------
-
-        try {
-
-            wait.until(
-                    ExpectedConditions.invisibilityOfElementLocated(
-                            autocompleteResults
-                    )
-            );
-
-        } catch (Exception ignored) {
-
-            System.out.println(
-                    "Autocomplete did not disappear immediately; continuing."
-            );
-        }
-
-        // ------------------------------------------------------
-        // Verify selected value
+        // VERIFY SEARCH BOX
         // ------------------------------------------------------
 
         String selectedValue =
                 driver.findElement(
                         employeeSearchField
-                ).getAttribute(
-                        "value"
-                );
+                ).getAttribute("value");
 
         System.out.println(
-                "Search box after selection: [" +
+                "Selected employee value: [" +
                 selectedValue +
                 "]"
         );
@@ -1055,13 +890,13 @@ public class AppointmentPage {
             selectedValue.trim().isEmpty()) {
 
             throw new IllegalStateException(
-                    "Employee was not selected: " +
-                    employeeFullName
+                    "Employee selection failed: "
+                    + employeeFullName
             );
         }
 
         // ------------------------------------------------------
-        // Click Add
+        // CLICK ADD
         // ------------------------------------------------------
 
         WebElement addButton =
@@ -1079,70 +914,57 @@ public class AppointmentPage {
         );
 
         // ------------------------------------------------------
-        // Wait for search field to clear
+        // WAIT SEARCH BOX CLEAR
         // ------------------------------------------------------
 
-        wait.until(driver -> {
+        wait.until(
+                driver -> {
 
-            String value =
-                    driver.findElement(
-                            employeeSearchField
-                    ).getAttribute(
-                            "value"
-                    );
+                    String value =
+                            driver.findElement(
+                                    employeeSearchField
+                            ).getAttribute("value");
 
-            return value == null ||
-                   value.trim().isEmpty();
-        });
+                    return value == null ||
+                           value.trim().isEmpty();
+                }
+        );
 
         System.out.println(
                 "Successfully added: " +
                 employeeFullName
         );
-
-        System.out.println(
-                "----------------------------------------"
-        );
     }
 
     // ==========================================================
-    // CAPTCHA + SAVE
+    // CAPTCHA
     // ==========================================================
 
     private void solveCaptchaAndSave() {
 
-        System.out.println();
         System.out.println(
                 "========================================"
         );
 
         System.out.println(
-                "CAPTCHA PROCESSING"
+                "READING CAPTCHA"
         );
 
         System.out.println(
                 "========================================"
         );
+
+        WebElement captcha =
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(
+                                captchaImage
+                        )
+                );
 
         try {
 
             // --------------------------------------------------
-            // Wait for CAPTCHA image
-            // --------------------------------------------------
-
-            WebElement captcha =
-                    wait.until(
-                            ExpectedConditions.visibilityOfElementLocated(
-                                    captchaImage
-                            )
-                    );
-
-            System.out.println(
-                    "CAPTCHA image is visible."
-            );
-
-            // --------------------------------------------------
-            // Capture CAPTCHA screenshot
+            // SCREENSHOT CAPTCHA
             // --------------------------------------------------
 
             byte[] screenshot =
@@ -1169,15 +991,11 @@ public class AppointmentPage {
             );
 
             // --------------------------------------------------
-            // Tesseract
+            // TESSERACT
             // --------------------------------------------------
 
             Tesseract tesseract =
                     new Tesseract();
-
-            // --------------------------------------------------
-            // Locate tessdata
-            // --------------------------------------------------
 
             String tessDataPath =
                     new File(
@@ -1189,16 +1007,11 @@ public class AppointmentPage {
                             tessDataPath
                     );
 
-            System.out.println(
-                    "Tessdata path: " +
-                    tessDataPath
-            );
-
             if (!tessDataFolder.exists()) {
 
                 throw new IllegalStateException(
-                        "Tessdata folder does not exist: " +
-                        tessDataPath
+                        "Tessdata folder does not exist: "
+                        + tessDataPath
                 );
             }
 
@@ -1211,18 +1024,10 @@ public class AppointmentPage {
             if (!englishData.exists()) {
 
                 throw new IllegalStateException(
-                        "eng.traineddata not found: " +
-                        englishData.getAbsolutePath()
+                        "eng.traineddata not found: "
+                        + englishData.getAbsolutePath()
                 );
             }
-
-            System.out.println(
-                    "eng.traineddata found."
-            );
-
-            // --------------------------------------------------
-            // Configure Tesseract
-            // --------------------------------------------------
 
             tesseract.setDatapath(
                     tessDataPath
@@ -1248,7 +1053,7 @@ public class AppointmentPage {
             );
 
             // --------------------------------------------------
-            // Clean OCR
+            // CLEAN OCR
             // --------------------------------------------------
 
             String expression =
@@ -1262,7 +1067,7 @@ public class AppointmentPage {
             );
 
             // --------------------------------------------------
-            // Calculate answer
+            // CALCULATE
             // --------------------------------------------------
 
             int answer =
@@ -1271,12 +1076,11 @@ public class AppointmentPage {
                     );
 
             System.out.println(
-                    "CAPTCHA answer: " +
-                    answer
+                    "CAPTCHA answer calculated."
             );
 
             // --------------------------------------------------
-            // Enter CAPTCHA
+            // ENTER ANSWER
             // --------------------------------------------------
 
             WebElement captchaInput =
@@ -1309,32 +1113,14 @@ public class AppointmentPage {
 
             save.click();
 
-            System.out.println();
             System.out.println(
-                    "========================================"
-            );
-
-            System.out.println(
-                    "SAVE BUTTON CLICKED"
-            );
-
-            System.out.println(
-                    "========================================"
+                    "Appointment SAVE clicked."
             );
 
         } catch (Exception e) {
 
-            System.out.println();
             System.out.println(
-                    "========================================"
-            );
-
-            System.out.println(
-                    "CAPTCHA PROCESSING FAILED"
-            );
-
-            System.out.println(
-                    "========================================"
+                    "CAPTCHA processing failed."
             );
 
             e.printStackTrace();
@@ -1347,7 +1133,7 @@ public class AppointmentPage {
     }
 
     // ==========================================================
-    // CLEAN CAPTCHA OCR
+    // CLEAN CAPTCHA
     // ==========================================================
 
     private String cleanCaptchaText(
@@ -1362,7 +1148,7 @@ public class AppointmentPage {
         }
 
         System.out.println(
-                "Original OCR text: [" +
+                "Original OCR: [" +
                 captchaText +
                 "]"
         );
@@ -1373,16 +1159,7 @@ public class AppointmentPage {
                         .trim();
 
         // ------------------------------------------------------
-        // If OCR contains "=",
-        // only use expression before "=".
-        //
-        // Example:
-        //
-        // 20+5=25
-        //
-        // becomes:
-        //
-        // 20+5
+        // Take expression before =
         // ------------------------------------------------------
 
         if (text.contains("=")) {
@@ -1395,6 +1172,25 @@ public class AppointmentPage {
         }
 
         // ------------------------------------------------------
+        // OCR corrections BEFORE removing characters
+        // ------------------------------------------------------
+
+        text =
+                text.replace("o", "0")
+                    .replace("i", "1")
+                    .replace("l", "1")
+                    .replace("s", "5")
+                    .replace("b", "8");
+
+        // ------------------------------------------------------
+        // Multiplication symbols
+        // ------------------------------------------------------
+
+        text =
+                text.replace("×", "x")
+                    .replace("÷", "/");
+
+        // ------------------------------------------------------
         // Remove spaces
         // ------------------------------------------------------
 
@@ -1405,29 +1201,7 @@ public class AppointmentPage {
                 );
 
         // ------------------------------------------------------
-        // Common OCR corrections
-        // ------------------------------------------------------
-
-        text =
-                text
-                        .replace("o", "0")
-                        .replace("i", "1")
-                        .replace("l", "1")
-                        .replace("s", "5")
-                        .replace("b", "8");
-
-        // ------------------------------------------------------
-        // Multiplication symbol
-        // ------------------------------------------------------
-
-        text =
-                text.replace(
-                        "×",
-                        "x"
-                );
-
-        // ------------------------------------------------------
-        // Remove unsupported characters
+        // Keep only supported characters
         // ------------------------------------------------------
 
         text =
@@ -1436,20 +1210,16 @@ public class AppointmentPage {
                         ""
                 );
 
-        // ------------------------------------------------------
-        // Validate
-        // ------------------------------------------------------
-
         if (text.isBlank()) {
 
             throw new IllegalStateException(
-                    "Could not extract CAPTCHA expression from OCR: " +
-                    captchaText
+                    "Could not extract CAPTCHA expression from OCR: "
+                    + captchaText
             );
         }
 
         System.out.println(
-                "Cleaned CAPTCHA expression: [" +
+                "Cleaned CAPTCHA: [" +
                 text +
                 "]"
         );
@@ -1622,8 +1392,8 @@ public class AppointmentPage {
         }
 
         throw new IllegalArgumentException(
-                "Unsupported CAPTCHA expression: " +
-                expression
+                "Unsupported CAPTCHA expression: "
+                + expression
         );
     }
 
@@ -1635,20 +1405,13 @@ public class AppointmentPage {
             String[] numbers,
             String expression) {
 
-        if (numbers.length != 2) {
-
-            throw new IllegalArgumentException(
-                    "Invalid CAPTCHA expression: " +
-                    expression
-            );
-        }
-
-        if (numbers[0].isBlank() ||
+        if (numbers.length != 2 ||
+            numbers[0].isBlank() ||
             numbers[1].isBlank()) {
 
             throw new IllegalArgumentException(
-                    "Invalid CAPTCHA numbers: " +
-                    expression
+                    "Invalid CAPTCHA expression: "
+                    + expression
             );
         }
     }
