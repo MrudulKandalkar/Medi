@@ -1,20 +1,24 @@
 name: Medi Appointment Automation
 
 on:
+
   schedule:
+
     # 11:30 PM IST = 18:00 UTC
     #
-    # Sunday    11:30 PM IST -> Monday    12:00 AM IST
-    # Monday    11:30 PM IST -> Tuesday   12:00 AM IST
-    # Tuesday   11:30 PM IST -> Wednesday 12:00 AM IST
-    # Wednesday 11:30 PM IST -> Thursday  12:00 AM IST
-    # Thursday  11:30 PM IST -> Friday    12:00 AM IST
+    # Sunday    -> Monday    12:00 AM IST
+    # Monday    -> Tuesday   12:00 AM IST
+    # Tuesday   -> Wednesday 12:00 AM IST
+    # Wednesday -> Thursday  12:00 AM IST
+    # Thursday  -> Friday    12:00 AM IST
+
     - cron: '0 18 * * 0-4'
 
-  # Allows manual execution from GitHub Actions
   workflow_dispatch:
 
+
 jobs:
+
   appointment:
 
     runs-on: ubuntu-latest
@@ -22,7 +26,7 @@ jobs:
     steps:
 
       # ==========================================
-      # 1. Checkout GitHub repository
+      # 1. Checkout repository
       # ==========================================
 
       - name: Checkout repository
@@ -42,55 +46,105 @@ jobs:
 
 
       # ==========================================
-      # 3. Verify Java and Maven
+      # 3. Install Chrome + Xvfb
       # ==========================================
 
-      - name: Verify Java and Maven
+      - name: Install Xvfb
         run: |
+
+          sudo apt-get update
+
+          sudo apt-get install -y xvfb
+
+
+      # ==========================================
+      # 4. Start virtual display
+      # ==========================================
+
+      - name: Start Xvfb
+        run: |
+
+          Xvfb :99 \
+            -screen 0 1920x1080x24 \
+            -ac \
+            +extension RANDR &
+
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+          sleep 3
+
+
+      # ==========================================
+      # 5. Verify environment
+      # ==========================================
+
+      - name: Verify Environment
+        run: |
+
           echo "========================================"
-          echo "JAVA VERSION"
+          echo "JAVA"
           echo "========================================"
 
           java -version
 
           echo ""
           echo "========================================"
-          echo "MAVEN VERSION"
+          echo "MAVEN"
           echo "========================================"
 
           mvn -version
 
-
-      # ==========================================
-      # 4. Display current UTC and IST time
-      # ==========================================
-
-      - name: Display current time
-        run: |
+          echo ""
           echo "========================================"
-          echo "CURRENT UTC TIME"
+          echo "CHROME"
+          echo "========================================"
+
+          google-chrome --version || true
+
+          echo ""
+          echo "========================================"
+          echo "DISPLAY"
+          echo "========================================"
+
+          echo $DISPLAY
+
+          echo ""
+          echo "========================================"
+          echo "TIME"
           echo "========================================"
 
           date -u
 
           echo ""
-          echo "========================================"
-          echo "CURRENT IST TIME"
-          echo "========================================"
 
           TZ=Asia/Kolkata date
 
-          echo "========================================"
-
 
       # ==========================================
-      # 5. Run TestNG
+      # 6. Run TestNG
       # ==========================================
 
-      - name: Run Appointment Automation
+      - name: Run Appointment Tests
         run: |
+
           echo "========================================"
-          echo "STARTING TESTNG"
+          echo "STARTING APPOINTMENT AUTOMATION"
           echo "========================================"
 
           mvn -B clean test -DsuiteXmlFile=testng.xml
+
+
+      # ==========================================
+      # 7. Upload screenshots/reports
+      # ==========================================
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appointment-test-results
+          path: |
+            test-output/
+            screenshots/
+            target/surefire-reports/
+          if-no-files-found: ignore
