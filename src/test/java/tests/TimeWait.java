@@ -4,61 +4,74 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class TimeWait {
+public final class TimeWait {
 
-    private static final ZoneId IST = ZoneId.of("Asia/Kolkata");
+    private static final ZoneId IST =
+            ZoneId.of("Asia/Kolkata");
 
     private TimeWait() {
-        // Utility class
     }
 
     public static void waitUntilMidnightIST() {
 
-        ZonedDateTime now = ZonedDateTime.now(IST);
+        ZonedDateTime now =
+                ZonedDateTime.now(IST);
 
-        // Calculate next midnight in IST
-        ZonedDateTime target = now
-                .toLocalDate()
-                .plusDays(1)
-                .atStartOfDay(IST);
+        ZonedDateTime target =
+                now.toLocalDate()
+                        .plusDays(1)
+                        .atStartOfDay(IST);
 
-        long waitMillis = Duration
-                .between(now, target)
-                .toMillis();
-
-        System.out.println();
         System.out.println("========================================");
-        System.out.println("     APPOINTMENT AUTOMATION");
+        System.out.println("     WAITING FOR 12:00 AM IST");
         System.out.println("========================================");
         System.out.println("Current IST : " + now);
         System.out.println("Target IST  : " + target);
-        System.out.println("Waiting for : " + (waitMillis / 1000) + " seconds");
-        System.out.println("========================================");
-        System.out.println();
 
         try {
 
-            Thread.sleep(waitMillis);
+            while (true) {
+
+                now = ZonedDateTime.now(IST);
+
+                Duration remaining =
+                        Duration.between(now, target);
+
+                if (remaining.isZero()
+                        || remaining.isNegative()) {
+                    break;
+                }
+
+                long millis =
+                        remaining.toMillis();
+
+                if (millis > 10_000) {
+                    Thread.sleep(5_000);
+                } else {
+                    Thread.sleep(
+                            Math.min(millis, 100)
+                    );
+                }
+            }
 
         } catch (InterruptedException e) {
 
             Thread.currentThread().interrupt();
 
             throw new RuntimeException(
-                    "Waiting for 12:00 AM IST was interrupted.",
+                    "Midnight wait was interrupted.",
                     e
             );
         }
 
-        ZonedDateTime executionTime = ZonedDateTime.now(IST);
-
-        System.out.println();
         System.out.println("========================================");
         System.out.println("       12:00 AM IST REACHED");
         System.out.println("========================================");
-        System.out.println("Execution IST : " + executionTime);
-        System.out.println("Starting Selenium automation...");
+        System.out.println(
+                "Execution IST: "
+                        + ZonedDateTime.now(IST)
+        );
+        System.out.println("STARTING SELENIUM");
         System.out.println("========================================");
-        System.out.println();
     }
 }
