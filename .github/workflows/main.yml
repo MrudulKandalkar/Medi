@@ -1,0 +1,96 @@
+name: Medi Appointment Automation
+
+on:
+  schedule:
+    # 11:30 PM IST = 18:00 UTC
+    #
+    # Sunday    11:30 PM IST -> Monday    12:00 AM IST
+    # Monday    11:30 PM IST -> Tuesday   12:00 AM IST
+    # Tuesday   11:30 PM IST -> Wednesday 12:00 AM IST
+    # Wednesday 11:30 PM IST -> Thursday  12:00 AM IST
+    # Thursday  11:30 PM IST -> Friday    12:00 AM IST
+    - cron: '0 18 * * 0-4'
+
+  # Allows manual execution from GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  appointment:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ==========================================
+      # 1. Checkout GitHub repository
+      # ==========================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+
+      # ==========================================
+      # 2. Setup Java 25
+      # ==========================================
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+
+      # ==========================================
+      # 3. Verify Java and Maven
+      # ==========================================
+
+      - name: Verify Java and Maven
+        run: |
+          echo "========================================"
+          echo "JAVA VERSION"
+          echo "========================================"
+
+          java -version
+
+          echo ""
+          echo "========================================"
+          echo "MAVEN VERSION"
+          echo "========================================"
+
+          mvn -version
+
+
+      # ==========================================
+      # 4. Display current UTC and IST time
+      # ==========================================
+
+      - name: Display current time
+        run: |
+          echo "========================================"
+          echo "CURRENT UTC TIME"
+          echo "========================================"
+
+          date -u
+
+          echo ""
+          echo "========================================"
+          echo "CURRENT IST TIME"
+          echo "========================================"
+
+          TZ=Asia/Kolkata date
+
+          echo "========================================"
+
+
+      # ==========================================
+      # 5. Run TestNG
+      # ==========================================
+
+      - name: Run Appointment Automation
+        run: |
+          echo "========================================"
+          echo "STARTING TESTNG"
+          echo "========================================"
+
+          mvn -B clean test -DsuiteXmlFile=testng.xml
